@@ -54,7 +54,8 @@ in {
         };
 
         Service = {
-          Type = "simple";
+          Type = "dbus";
+          BusName = "org.erikreider.swayosd-server";
           ExecStart = "${cfg.package}/bin/swayosd-server"
             + (optionalString (cfg.display != null) " --display ${cfg.display}")
             + (optionalString (cfg.topMargin != null)
