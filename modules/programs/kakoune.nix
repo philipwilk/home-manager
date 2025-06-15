@@ -541,12 +541,6 @@ let
     };
   };
 
-  kakouneWithPlugins = pkgs.wrapKakoune cfg.package {
-    configure = {
-      plugins = cfg.plugins;
-    };
-  };
-
   configFile =
     let
       wrapOptions =
@@ -686,7 +680,19 @@ in
     programs.kakoune = {
       enable = mkEnableOption "the kakoune text editor";
 
-      package = lib.mkPackageOption pkgs "kakoune-unwrapped" { nullable = true; };
+      package = lib.mkPackageOption pkgs "kakoune-unwrapped" { };
+
+      finalPackage = lib.mkOption {
+        type = lib.types.package;
+        visible = false;
+        readOnly = true;
+        description = "Resulting customized kakoune package.";
+        default = pkgs.wrapKakoune cfg.package {
+          configure = {
+            plugins = cfg.plugins;
+          };
+        };
+      };
 
       config = mkOption {
         type = types.nullOr configModule;
@@ -740,13 +746,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    warnings = lib.optional (cfg.package == null && cfg.plugins != [ ]) ''
-      You have configured `plugins` for `kakoune` but have not set `package`.
-
-      The listed plugins will not be installed.
-    '';
-
-    home.packages = lib.mkIf (cfg.package != null) [ kakouneWithPlugins ];
+    home.packages = [ cfg.finalPackage ];
     home.sessionVariables = mkIf cfg.defaultEditor { EDITOR = "kak"; };
     xdg.configFile = lib.mkMerge [
       { "kak/kakrc".source = configFile; }
