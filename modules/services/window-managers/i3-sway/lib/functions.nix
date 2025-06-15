@@ -1,4 +1,4 @@
-{ cfg, config, lib, moduleName }:
+ cfg, config, lib, moduleName }:
 
 with lib;
 
@@ -19,12 +19,12 @@ rec {
   # or just a
   #
   #     {name = ...; value = <value>; }
-  getPriorityValue = name-value:
-    if builtins.typeOf name-value.value == "set" && name-value.value ? priority
-    && name-value.value ? value then
-      name-value.value.value
+  getPriorityValue = {name, value}:
+    if builtins.typeOf value  == "set" && value ? priority
+    && value ? value then
+      value.value
     else
-      name-value.value;
+      value;
 
   # Gets the priority if present, or 100 for defaultWorkspace and 1000 for
   # anything else)
